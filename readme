@@ -1,0 +1,46 @@
+# Self-Driving Car Simulation
+
+A browser-based top-down self-driving car simulation built with **HTML, CSS, and vanilla JavaScript**.  
+It demonstrates basic AI with sensors and a neural network trained using **mutation-based genetic evolution**. No backend is required — everything runs directly in the browser.
+
+---
+
+## Features
+
+- **Top-down 2D environment**
+  - Straight multi-lane road
+  - Lane boundaries and off-road areas
+  - AI-controlled traffic cars
+
+- **Car physics**
+  - Steering (left/right)
+  - Acceleration and braking
+  - Friction / drag
+  - Maximum speed limit
+  - Smooth and natural feel
+
+- **Sensors**
+  - Forward, left, and right rays (configurable)
+  - Detect distance to road boundaries and traffic
+  - Visualised on canvas
+
+- **Neural Network AI**
+  - Built from scratch in JavaScript
+  - Inputs: sensor readings
+  - Outputs: steering & acceleration decisions
+  - Genetic evolution with mutation-based training
+  - Save/load the best performing brain using `localStorage`
+
+- **Driving Logic**
+  - Stay on the road
+  - Keep inside a lane
+  - Avoid collisions
+  - Learn to drive further each generation
+
+- **UI**
+  - Start/Pause simulation
+  - Save best brain
+  - Discard saved brain
+  - Toggle between AI mode and manual driving mode
+  - Generation and best score display
+
