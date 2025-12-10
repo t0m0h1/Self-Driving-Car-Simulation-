@@ -1,29 +1,30 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Self-Driving Car Simulation</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div id="ui">
-    <h1>Self-Driving Car Simulation</h1>
-    <div class="controls">
-      <button id="startPauseBtn">Start</button>
-      <button id="saveBtn">Save Best Brain</button>
-      <button id="discardBtn">Discard Saved Brain</button>
-      <label><input type="checkbox" id="aiToggle" checked> AI mode</label>
-      <span id="generation">Generation: 0</span>
-      <span id="bestScore">Best score: 0</span>
-    </div>
-    <p class="hint">Use Arrow keys or WASD when manual driving enabled.</p>
+  <h1>Self-Driving Car Simulation</h1>
+  <div id="controls">
+    <button id="startBtn">Start</button>
+    <button id="pauseBtn">Pause</button>
+    <button id="saveBrainBtn">Save Best Brain</button>
+    <button id="discardBrainBtn">Discard Saved Brain</button>
+    <label>
+      <input type="checkbox" id="aiMode" checked> AI Mode
+    </label>
   </div>
+  <canvas id="myCanvas"></canvas>
 
-  <div id="canvasWrap">
-    <canvas id="simCanvas"></canvas>
-  </div>
-
-  <script type="module" src="script.js"></script>
+  <script src="utils.js"></script>
+  <script src="network.js"></script>
+  <script src="road.js"></script>
+  <script src="sensor.js"></script>
+  <script src="car.js"></script>
+  <script src="controls.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>

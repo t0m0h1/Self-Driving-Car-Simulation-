@@ -1,15 +1,14 @@
-// network.js
-export default class NeuralNetwork {
-    constructor(layerSizes) {
-      // layerSizes: array of integers e.g. [5,6,4,2]
+// Neural Network implementation with feedforward and mutation capabilities
+class NeuralNetwork {
+    constructor(neuronCounts) {
       this.levels = [];
-      for (let i = 0; i < layerSizes.length - 1; i++) {
-        this.levels.push(new Level(layerSizes[i], layerSizes[i + 1]));
+      for (let i = 0; i < neuronCounts.length - 1; i++) {
+        this.levels.push(new Level(neuronCounts[i], neuronCounts[i+1]));
       }
     }
   
-    static feedForward(givenInputs, network) {
-      let outputs = Level.feedForward(givenInputs, network.levels[0]);
+    static feedForward(inputs, network) {
+      let outputs = Level.feedForward(inputs, network.levels[0]);
       for (let i = 1; i < network.levels.length; i++) {
         outputs = Level.feedForward(outputs, network.levels[i]);
       }
@@ -19,11 +18,11 @@ export default class NeuralNetwork {
     static mutate(network, amount = 0.1) {
       network.levels.forEach(level => {
         for (let i = 0; i < level.biases.length; i++) {
-          level.biases[i] = lerp(level.biases[i], Math.random() * 2 - 1, amount);
+          level.biases[i] = mutate(level.biases[i], amount);
         }
         for (let i = 0; i < level.weights.length; i++) {
           for (let j = 0; j < level.weights[i].length; j++) {
-            level.weights[i][j] = lerp(level.weights[i][j], Math.random() * 2 - 1, amount);
+            level.weights[i][j] = mutate(level.weights[i][j], amount);
           }
         }
       });
@@ -36,46 +35,29 @@ export default class NeuralNetwork {
       this.outputs = new Array(outputCount);
       this.biases = new Array(outputCount);
       this.weights = [];
+  
       for (let i = 0; i < inputCount; i++) {
         this.weights[i] = new Array(outputCount);
-      }
-  
-      Level.randomize(this);
-    }
-  
-    static randomize(level) {
-      for (let i = 0; i < level.inputs.length; i++) {
-        for (let j = 0; j < level.outputs.length; j++) {
-          level.weights[i][j] = Math.random() * 2 - 1;
+        for (let j = 0; j < outputCount; j++) {
+          this.weights[i][j] = Math.random() * 2 - 1;
         }
       }
-      for (let i = 0; i < level.biases.length; i++) {
-        level.biases[i] = Math.random() * 2 - 1;
+  
+      for (let i = 0; i < outputCount; i++) {
+        this.biases[i] = Math.random() * 2 - 1;
       }
     }
   
     static feedForward(givenInputs, level) {
-      for (let i = 0; i < level.inputs.length; i++) {
-        level.inputs[i] = givenInputs[i];
-      }
-  
-      for (let j = 0; j < level.outputs.length; j++) {
+      level.inputs = givenInputs;
+      for (let i = 0; i < level.outputs.length; i++) {
         let sum = 0;
-        for (let i = 0; i < level.inputs.length; i++) {
-          sum += level.inputs[i] * level.weights[i][j];
+        for (let j = 0; j < level.inputs.length; j++) {
+          sum += level.inputs[j] * level.weights[j][i];
         }
-        if (sum > level.biases[j]) {
-          level.outputs[j] = 1;
-        } else {
-          level.outputs[j] = 0;
-        }
+        level.outputs[i] = sum > level.biases[i] ? 1 : 0;
       }
       return level.outputs;
     }
-  }
-  
-  /* helpers */
-  function lerp(a, b, t) {
-    return a + (b - a) * t;
   }
   
