@@ -5,65 +5,90 @@ canvas.height = 600;
 const ctx = canvas.getContext("2d");
 
 const road = new Road(canvas.width/2, 300, 3);
-const traffic = [
-  new Car(road.getLaneCenter(1), -100, 30, 50, "KEYS"),
-  new Car(road.getLaneCenter(0), -300, 30, 50, "KEYS")
-];
 
-const N = 100;
-const cars = [];
-for (let i = 0; i < N; i++) {
-  const car = new Car(road.getLaneCenter(1), 100, 30, 50, "AI");
-  if (localStorage.getItem("bestBrain")) {
-    car.brain = JSON.parse(localStorage.getItem("bestBrain"));
-    if (i !== 0) NeuralNetwork.mutate(car.brain, 0.1);
-  }
-  cars.push(car);
+// Generate traffic cars
+const traffic = [];
+for (let i = 0; i < 5; i++) {
+  const lane = getRandomInt(0, road.laneCount - 1);
+  const car = new Car(road.getLaneCenter(lane), -150 - i * 150, 30, 50, "KEYS");
+  car.speed = 2; // constant forward speed
+  traffic.push(car);
+}
+
+// Single self-driving car
+const selfDrivingCar = new Car(road.getLaneCenter(1), 100, 30, 50, "AI");
+if (localStorage.getItem("bestBrain")) {
+  selfDrivingCar.brain = JSON.parse(localStorage.getItem("bestBrain"));
 }
 
 let animationId;
 let aiMode = true;
 
 function animate() {
-  for (let car of traffic) car.update(getRoadBorders(), []);
-  for (let car of cars) car.update(getRoadBorders(), traffic);
+  // Move traffic cars
+  for (let car of traffic) {
+    car.y += car.speed;
+    car.updatePolygon();
+  }
 
+  // Update self-driving car
+  selfDrivingCar.update(getRoadBorders(), traffic);
+
+  // Clear canvas
   canvas.height = canvas.height;
 
+  // Draw road
   road.draw(ctx);
-  for (let car of traffic) car.draw(ctx, "red");
-  
-  const bestCar = cars.reduce((a,b) => (a.y < b.y ? a : b));
-  ctx.globalAlpha = 0.2;
-  for (let car of cars) car.draw(ctx, "blue");
-  ctx.globalAlpha = 1;
-  bestCar.draw(ctx, "blue");
 
+  // Draw traffic
+  for (let car of traffic) car.draw(ctx, "red");
+
+  // Draw self-driving car
+  selfDrivingCar.draw(ctx, "blue");
+
+  // Center camera on self-driving car
+  ctx.save();
+  ctx.translate(0, -selfDrivingCar.y + canvas.height * 0.7);
   animationId = requestAnimationFrame(animate);
+  ctx.restore();
 }
 
 animate();
 
+// Utility to generate road borders for collision detection
 function getRoadBorders() {
   const borders = [];
   for (let i = 0; i <= road.laneCount; i++) {
     const x = road.left + i*road.laneWidth;
-    borders.push([{x,y:0},{x,y:canvas.height}]);
+    borders.push([{x, y: 0}, {x, y: canvas.height*2}]);
   }
   return borders;
 }
 
 // UI buttons
 document.getElementById("saveBrainBtn").onclick = () => {
-  const bestCar = cars.reduce((a,b) => (a.y < b.y ? a : b));
-  localStorage.setItem("bestBrain", JSON.stringify(bestCar.brain));
-}
+  localStorage.setItem("bestBrain", JSON.stringify(selfDrivingCar.brain));
+  alert("Best brain saved!");
+};
 
 document.getElementById("discardBrainBtn").onclick = () => {
   localStorage.removeItem("bestBrain");
-}
+  alert("Saved brain discarded!");
+};
 
 document.getElementById("aiMode").onchange = (e) => {
   aiMode = e.target.checked;
-  for (let car of cars) car.controls = new Controls(aiMode ? "AI" : "KEYS");
-}
+  selfDrivingCar.controls = new Controls(aiMode ? "AI" : "KEYS");
+};
+
+// Start/Pause buttons
+document.getElementById("startBtn").onclick = () => {
+  if (!animationId) animate();
+};
+
+document.getElementById("pauseBtn").onclick = () => {
+  if (animationId) {
+    cancelAnimationFrame(animationId);
+    animationId = null;
+  }
+};
